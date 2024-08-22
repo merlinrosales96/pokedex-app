@@ -1,17 +1,13 @@
 import * as React from 'react';
 import { PaletteMode } from '@mui/material';
-import { Box, AppBar, Toolbar, Container, Divider, Typography, MenuItem, Drawer, IconButton } from '@mui/material';
+import { Box, AppBar, Toolbar, Container, Divider, Drawer, IconButton } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
-//import Logo from '../assets/logo.png';
-/*import LanguageSwitcher from '../molecules/LanguageSwitcher';
-import SocialButtons from '../molecules/SocialButton';*/
-//import { useTranslation } from 'react-i18next';
-import logo from '../assets/logo-pokedex.png';
+import logo from '../assets/pokeball-logo.png';
+import { Link } from 'react-router-dom';
 
 const logoStyle = {
-    width: '5%',
-    height: '5%',
+    width: '15%',
+    height: '15%',
     cursor: 'pointer',
 };
 
@@ -35,36 +31,13 @@ function NavBar({ mode }: NavBarProps) {
         setOpen(newOpen);
     };
 
-    const scrollToSection = (sectionId: string) => {
-        const sectionElement = document.getElementById(sectionId);
-        const offset = 128;
-        if (sectionElement) {
-            const targetScroll = sectionElement.offsetTop - offset;
-            sectionElement.scrollIntoView({ behavior: 'smooth' });
-            window.scrollTo({
-                top: targetScroll,
-                behavior: 'smooth',
-            });
-            setOpen(false);
-        }
-    };
-
-    const goHome = () => {
-        /*if (location.pathname === '/') {
-            scrollToSection("home");
-        }
-        else {
-            window.location.href = '/';
-        }*/
-    };
-
     return (
         <div>
             <AppBar
                 position="fixed"
                 sx={{
                     boxShadow: 0,
-                    bgcolor: '#f12626',
+                    bgcolor: '#F60A4F',
                     backgroundImage: 'none',
                 }}
             >
@@ -89,13 +62,15 @@ function NavBar({ mode }: NavBarProps) {
                                 px: 0,
                             }}
                         >
-                            <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-                                <img
-                                    src={logo}
-                                    style={logoStyle}
-                                    alt={`logo-${mode}`}
-                                />
-                            </Box>
+                            <Link to={"/"}>
+                                <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+                                    <img
+                                        src={logo}
+                                        style={logoStyle}
+                                        alt={`logo-${mode}`}
+                                    />
+                                </Box>
+                            </Link>
                         </Box>
                         <Box
                             sx={{
