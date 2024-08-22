@@ -1,7 +1,5 @@
-import * as React from 'react';
 import { PaletteMode } from '@mui/material';
-import { Box, AppBar, Toolbar, Container, Divider, Drawer, IconButton } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
+import { Box, AppBar, Toolbar, Container } from '@mui/material';
 import logo from '../assets/pokeball-logo.png';
 import { Link } from 'react-router-dom';
 
@@ -17,19 +15,6 @@ interface NavBarProps {
 
 function NavBar({ mode }: NavBarProps) {
 
-    /*const location = useLocation();
-    const navigate = useNavigate();
-
-    const handleGoBack = () => {
-        navigate(-1);
-    };*/
-
-    const [open, setOpen] = React.useState(false);
-    //const { t } = useTranslation();
-
-    const toggleDrawer = (newOpen: boolean) => () => {
-        setOpen(newOpen);
-    };
 
     return (
         <div>
@@ -63,7 +48,7 @@ function NavBar({ mode }: NavBarProps) {
                             }}
                         >
                             <Link to={"/"}>
-                                <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+                                <Box sx={{ display: { xs: 'flex' } }}>
                                     <img
                                         src={logo}
                                         style={logoStyle}
@@ -87,54 +72,6 @@ function NavBar({ mode }: NavBarProps) {
                                 alignItems: 'center',
                             }}
                         >
-                        </Box>
-                        <Box sx={{ display: { sm: '', md: 'none' } }}>
-                            <IconButton
-                                aria-label="menu"
-                                onClick={toggleDrawer(true)}
-                            >
-                                <MenuIcon />
-                            </IconButton>
-                            <Drawer
-                                anchor="top"
-                                open={open}
-                                onClose={toggleDrawer(false)}
-                                variant="temporary"
-                                PaperProps={{
-                                    sx: {
-                                        width: '100%',
-                                        height: '100%',
-                                        backgroundColor: 'white',
-                                    }
-                                }}>
-                                <Box
-                                    sx={{
-                                        minWidth: '60dvw',
-                                        p: 2,
-                                        backgroundColor: 'background.paper',
-                                        flexGrow: 1,
-                                    }}
-                                >
-                                    <Box
-                                        sx={{
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            alignItems: 'end',
-                                            flexGrow: 1,
-                                        }}
-                                    >
-                                        <Box component="div" className="grid grid-cols-2">
-                                            <IconButton
-                                                aria-label="close"
-                                                onClick={toggleDrawer(false)}
-                                            >
-                                            </IconButton>
-                                        </Box>
-                                    </Box>
-
-                                    <Divider />
-                                </Box>
-                            </Drawer>
                         </Box>
                     </Toolbar>
                 </Container>
