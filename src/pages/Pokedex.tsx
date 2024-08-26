@@ -4,10 +4,10 @@ import { Link } from 'react-router-dom';
 import { Grid, Card, CardContent, CardActionArea, Typography, Pagination, Box, CardMedia, Chip, Container, Skeleton, Paper, CircularProgress, TextField } from '@mui/material';
 import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-import { itemsPerPage, PokemonCount, typeColors } from '../../utils/Utils';
-import { usePokemonList } from '../../hooks/usePokemons';
-import { Pokemon, PokemonDetail } from '../../utils/Types';
-import axios from '../../utils/axios';
+import { itemsPerPage, PokemonCount, typeColors } from '../utils/Utils';
+import { usePokemonList } from '../hooks/usePokemons';
+import { Pokemon, PokemonDetail } from '../utils/Types';
+import axios from '../utils/axios';
 
 const Pokedex: React.FC = () => {
 

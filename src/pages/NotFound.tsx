@@ -1,5 +1,5 @@
-import { Image } from "../atoms/Image";
-import logo from "../assets/404.png";
+import { Image } from "../components/common/Image";
+import logo from "../assets/images/404.png";
 import { Typography, Button } from "@mui/material";
 
 

@@ -1,6 +1,6 @@
 import { PaletteMode } from '@mui/material';
 import { Box, AppBar, Toolbar, Container } from '@mui/material';
-import logo from '../assets/pokeball-logo.png';
+import logo from '../../assets/images/pokeball-logo.png';
 import { Link } from 'react-router-dom';
 
 const logoStyle = {

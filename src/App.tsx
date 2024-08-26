@@ -2,11 +2,11 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { PaletteMode } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import NavBar from './components/organs/NavBar';
-import Home from './components/pages/Home';
-import Pokedex from './components/pages/Pokedex';
-import PokemonInfo from './components/pages/PokemonInfo';
-import NotFound from './components/pages/NotFound';
+import NavBar from './components/layout/NavBar';
+import Home from './pages/Home';
+import Pokedex from './pages/Pokedex';
+import PokemonInfo from './pages/PokemonInfo';
+import NotFound from './pages/NotFound';
 import './App.css';
 
 function App() {
