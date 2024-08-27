@@ -1,5 +1,5 @@
-import { Image } from "../atoms/Image";
-import logo from "../assets/pokeball-logo.png";
+import { Image } from "../../components/common/Image";
+import logo from "../../assets/images/pokeball-logo.png";
 import { Typography, Button } from "@mui/material";
 
 

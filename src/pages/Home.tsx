@@ -1,4 +1,4 @@
-import HomeSection from "../organs/HeroSection";
+import HomeSection from "../features/Home/HeroSection";
 
 const Home = () => {
     return (

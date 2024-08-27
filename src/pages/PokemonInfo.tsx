@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Grid, Box, Paper, Typography, Card, CardMedia, CardContent, Skeleton, Chip, Divider, Pagination, IconButton } from "@mui/material";
 import { ArrowBack } from "@mui/icons-material";
-import { usePokemonById } from "../../hooks/usePokemons";
-import { typeColors, PokemonCount } from "../../utils/Utils";
+import { usePokemonById } from "../hooks/usePokemons";
+import { typeColors, PokemonCount } from "../utils/Utils";
 
 
 const PokemonInfo = () => {
