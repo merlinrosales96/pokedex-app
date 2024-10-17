@@ -1,8 +1,12 @@
 import React from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { PaletteMode } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import NavBar from './components/organs/NavBar';
-import Pokedex from './components/pages/Pokedex';
+import NavBar from './components/layout/NavBar';
+import Home from './pages/Home';
+import Pokedex from './pages/Pokedex';
+import PokemonInfo from './pages/PokemonInfo';
+import NotFound from './pages/NotFound';
 import './App.css';
 
 function App() {
@@ -10,9 +14,9 @@ function App() {
   const [mode] = React.useState<PaletteMode>('light');
 
   const defaultTheme = createTheme({
-    /*typography: {
-      fontFamily:  "New Amsterdam, sans-serif", // Especifica la fuente de Google y una fuente de respaldo
-    },*/
+    typography: {
+      fontFamily: 'PokemonGB, Arial',
+    },
     palette: {
       mode,
       ...(mode === 'light'
@@ -54,7 +58,12 @@ function App() {
   return (
     <ThemeProvider theme={defaultTheme}>
       <NavBar mode={mode} />
-      <Pokedex />
+      <Routes>
+        <Route path='/' element={<Home />} />
+        <Route path='/pokedex/:id' element={<Pokedex />} />
+        <Route path='/pokemon/:id' element={<PokemonInfo />} />
+        <Route path='*' element={<NotFound />} />
+      </Routes>
     </ThemeProvider>
   );
 }
