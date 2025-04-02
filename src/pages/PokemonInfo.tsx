@@ -1,9 +1,15 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Container, Grid, Box, Paper, Typography, Card, CardMedia, CardContent, Skeleton, Chip, Divider, Pagination, IconButton } from "@mui/material";
+import {
+    Container, Grid, Box, Paper, Typography, Card, CardMedia,
+    CardContent, Skeleton, Chip, Divider, Pagination, IconButton,
+    LinearProgress,
+    Table, TableBody, TableCell, TableContainer, TableHead, TableRow
+} from "@mui/material";
 import { ArrowBack } from "@mui/icons-material";
 import { usePokemonById } from "../hooks/usePokemons";
 import { typeColors, PokemonCount } from "../utils/Utils";
+//import axios from "../utils/axios";
 
 
 const PokemonInfo = () => {
@@ -12,6 +18,7 @@ const PokemonInfo = () => {
     const navigate = useNavigate();
     const [page, setPage] = useState<number>(id ? parseInt(id) : 1);
     const { data, loading } = usePokemonById(page);
+    //const [locations, setLocations] = useState<string[]>([]);
 
     const handleChange = (_: React.ChangeEvent<unknown>, value: number) => {
         setPage(value);
@@ -29,9 +36,27 @@ const PokemonInfo = () => {
         }
     }, [id, navigate]);
 
+    /*useEffect(() => {
+        const fetchLocations = async () => {
+          try {
+            const response = await axios.get(
+              `https://pokeapi.co/api/v2/pokemon/${id}/encounters`
+            );
+            const locationNames = response.data.map((loc: any) => loc.location_area.name);
+            setLocations(locationNames);
+          } catch (error) {
+            console.error("Error fetching locations:", error);
+            setLocations([]);
+          } finally {
+          }
+        };
+    
+        fetchLocations();
+      }, [id]);*/
+
 
     return (
-        <Container maxWidth="sm" component="section"
+        <Container maxWidth="md" component="section"
             sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', my: 4, py: 6 }}>
             <Grid container spacing={6} alignItems="flex-start">
                 <Grid size={{ xs: 12 }}>
@@ -113,8 +138,60 @@ const PokemonInfo = () => {
                 </Grid>
 
 
-                <Grid size={{ xs: 12 }}>
+                <Grid size={{ xs: 12, md: 6 }}>
+                    <Paper elevation={3} sx={{ height: 500 }}>
+                        <Typography sx={{ p: 1 }} className='capitalize-text' variant="h6" color="text.primary">
+                            Stats
+                        </Typography>
+                        <Box sx={{ padding: 2 }}>
+                            {data?.stats.map((stat) => (
+                                <Box key={stat.stat.name} sx={{ mb: 2 }}>
+                                    <Typography className='capitalize-text' variant="body1">{stat.stat.name}</Typography>
+                                    <LinearProgress
+                                        variant="determinate"
+                                        value={(stat.base_stat / 255) * 100}
+                                        sx={{ height: 8, borderRadius: 5 }}
+                                    />
+                                    <Typography variant="caption">{stat.base_stat} / 255</Typography>
+                                </Box>
+                            ))}
+                        </Box>
+                    </Paper>
+                </Grid>
+                <Grid size={{ xs: 12, md: 6 }}>
                     <Paper elevation={3}>
+                        <Typography sx={{ p: 1 }} className='capitalize-text' variant="h6" color="text.primary">
+                            Moves
+                        </Typography>
+                        <TableContainer component={Paper} sx={{ maxHeight: 450, padding: 2 }}>
+                            <Table aria-label="simple table">
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>#</TableCell>
+                                        <TableCell>Moves</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {data?.moves.map((row, index) => (
+                                        <TableRow
+                                            key={row.move.name}
+                                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                        >
+                                            <TableCell component="th" scope="row">
+                                                {index + 1}
+                                            </TableCell>
+                                            <TableCell component="th" scope="row" className='capitalize-text'>
+                                                {row.move.name.replace("-", " ")}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </Paper>
+                </Grid>
+                <Grid size={{ xs: 12 }}>
+                    <Paper elevation={3} sx={{padding: 2}}>
                         <Typography sx={{ p: 1 }} className='capitalize-text' variant="h6" color="text.primary">
                             Forms
                         </Typography>
