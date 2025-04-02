@@ -9,7 +9,7 @@ export interface UsePokemonListReturn {
 export interface UsePokemonDataReturn {
     data?: PokemonDetail;
     loading: boolean;
-  }
+}
 
 export interface Pokemon {
     name: string;
@@ -33,10 +33,26 @@ export interface PokemonDetail {
         }
     };
     types: PokemonType[],
+    moves: PokemonMove[],
+    stats: PokemonStats[]
 }
 
 export interface PokemonType {
     type: {
         name: string;
+    }
+}
+
+export interface PokemonMove {
+    move: {
+        name: string;
+    }
+}
+
+export interface PokemonStats {
+    base_stat: number,
+    effort: number,
+    stat: {
+        name: string
     }
 }
