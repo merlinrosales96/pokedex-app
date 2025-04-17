@@ -1,12 +1,7 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
 import { PaletteMode, CssBaseline } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import NavBar from './components/layout/NavBar';
-import Home from './pages/Home';
-import Pokedex from './pages/Pokedex';
-import PokemonInfo from './pages/PokemonInfo';
-import NotFound from './pages/NotFound';
+import RoutesApp from './components/common/Routes';
 import './App.css';
 
 function App() {
@@ -58,13 +53,7 @@ function App() {
   return (
     <ThemeProvider theme={defaultTheme}>
       <CssBaseline />
-      <NavBar />
-      <Routes>
-        <Route path='/' element={<Home />} />
-        <Route path='/pokedex/:id' element={<Pokedex />} />
-        <Route path='/pokemon/:id' element={<PokemonInfo />} />
-        <Route path='*' element={<NotFound />} />
-      </Routes>
+      <RoutesApp />
     </ThemeProvider>
   );
 }
