@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import {
     Grid, Card, CardContent, CardActionArea, Typography, Pagination, Tooltip,
-    Box, CardMedia, Chip, Container, Skeleton, IconButton, CircularProgress, TextField
+    Box, CardMedia, Chip, Container, IconButton, CircularProgress, TextField
 } from '@mui/material';
 import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
@@ -109,24 +109,30 @@ const Pokedex: React.FC = () => {
                             Pokédex
                         </Typography>
 
-                        <Grid size={{ xs: 6 }} sx={{ mb: 5 }}>
-                            <TextField
-                                id="filled-search"
-                                label="Search by name"
-                                type="search"
-                                variant="outlined"
-                                color='error'
-                                value={searchText}
-                                onChange={handleChangeInput}
-                                onKeyPress={handleKeyPress}
-                            />
+                        <Grid container spacing={0} sx={{ mb: 5 }}>
+                            <Grid size={{ xs: 11 }}>
+                                <TextField
+                                    id="filled-search"
+                                    label="Search by name"
+                                    type="search"
+                                    variant="outlined"
+                                    color="error"
+                                    value={searchText}
+                                    onChange={handleChangeInput}
+                                    onKeyPress={handleKeyPress}
+                                    fullWidth
+                                />
+                            </Grid>
 
-                            <Tooltip title={"Search Pokémon"}>
-                                <IconButton color='error' onClick={SearchPokemon}>
-                                    <CatchingPokemonIcon sx={{ fontSize: '32px' }} />
-                                </IconButton>
-                            </Tooltip>
+                            <Grid size={{ xs: 1 }} sx={{ display: 'flex', alignItems: 'center' }}>
+                                <Tooltip title="Search Pokémon">
+                                    <IconButton color="error" onClick={SearchPokemon}>
+                                        <CatchingPokemonIcon sx={{ fontSize: '32px' }} />
+                                    </IconButton>
+                                </Tooltip>
+                            </Grid>
                         </Grid>
+
                         <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
                             <Alert
                                 onClose={handleClose}
@@ -145,43 +151,34 @@ const Pokedex: React.FC = () => {
                                         <Card sx={{ border: `2px solid ${typeColors[pokemonDetails[pokemon.name]?.types[0].type.name]}` }}>
                                             <CardActionArea>
                                                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                                                    {loading ? (
-                                                        <Skeleton variant="rectangular" width={140} height={140} />
-                                                    ) : (
-                                                        <CardMedia
-                                                            className=''
-                                                            component="img"
-                                                            sx={{
-                                                                width: {
-                                                                    xs: "90%",
-                                                                },
-                                                                height: {
-                                                                    xs: "90%",
-                                                                },
-                                                                objectFit: "contain",
-                                                            }}
-                                                            image={pokemonDetails[pokemon.name]?.sprites.other['official-artwork'].front_default || 'default-image-url'}
-                                                            alt={pokemon.name}
-                                                        />
-                                                    )}
+                                                    <CardMedia
+                                                        className=''
+                                                        component="img"
+                                                        sx={{
+                                                            width: {
+                                                                xs: "90%",
+                                                            },
+                                                            height: {
+                                                                xs: "90%",
+                                                            },
+                                                            objectFit: "contain",
+                                                        }}
+                                                        image={pokemonDetails[pokemon.name]?.sprites.other['official-artwork'].front_default || 'default-image-url'}
+                                                        alt={pokemon.name}
+                                                    />
                                                 </Box>
-                                                {loading ? (
-                                                    <Skeleton variant="text" width="60%" />
-                                                ) : (
-                                                    <CardContent>
-                                                        <Typography className='capitalize-text' variant="body2" color="text.primary" display="block" gutterBottom>
-                                                            {pokemon.name}
-                                                        </Typography>
-                                                        <Chip
-                                                            label={`# ${pokemonDetails[pokemon.name]?.id.toString().padStart(PokemonCount.toString().length, '0')}`}
-                                                            sx={{
-                                                                backgroundColor: `${typeColors[pokemonDetails[pokemon.name]?.types[0].type.name]}`,
-                                                                color: '#FFFFFF',
-                                                            }}
-                                                        />
-                                                    </CardContent>
-
-                                                )}
+                                                <CardContent>
+                                                    <Typography className='capitalize-text' variant="body2" color="text.primary" display="block" gutterBottom>
+                                                        {pokemon.name}
+                                                    </Typography>
+                                                    <Chip
+                                                        label={`# ${pokemonDetails[pokemon.name]?.id.toString().padStart(PokemonCount.toString().length, '0')}`}
+                                                        sx={{
+                                                            backgroundColor: `${typeColors[pokemonDetails[pokemon.name]?.types[0].type.name]}`,
+                                                            color: '#FFFFFF',
+                                                        }}
+                                                    />
+                                                </CardContent>
                                             </CardActionArea>
                                         </Card>
 

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
     Container, Grid, Box, Paper, Typography, Card, CardMedia,
     CardContent, Skeleton, Chip, Divider, Pagination, IconButton,
-    LinearProgress,
+    LinearProgress, CircularProgress,
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow
 } from "@mui/material";
 import { ArrowBack } from "@mui/icons-material";
@@ -54,6 +54,14 @@ const PokemonInfo = () => {
         fetchLocations();
       }, [id]);*/
 
+    if (loading) {
+        return (
+            <Box sx={{ pt: 16, display: 'flex', justifyContent: 'center' }}>
+                <CircularProgress />
+            </Box>
+        );
+    }
+
 
     return (
         <Container maxWidth="md" component="section"
@@ -83,57 +91,52 @@ const PokemonInfo = () => {
                                 />
                             )}
                         </Box>
-                        {loading ? (
-                            <Skeleton variant="text" width="60%" />
-                        ) : (
-                            <CardContent>
-                                <Typography className='capitalize-text' variant="h5" color="text.primary">
-                                    {data?.name}
-                                </Typography>
-                                <Grid container spacing={1} alignItems="flex-start">
-                                    {
-                                        data?.types.map((item) => (
-                                            <Grid key={item.type.name} size={{ xs: 4 }}>
-                                                <Chip
-                                                    className='capitalize-text'
-                                                    label={item.type.name}
-                                                    sx={{
-                                                        backgroundColor: `${typeColors[item.type.name]}`,
-                                                        color: '#FFFFFF',
-                                                    }}
-                                                />
-                                            </Grid>
-                                        ))
-                                    }
+                        <CardContent>
+                            <Typography className='capitalize-text' variant="h5" color="text.primary">
+                                {data?.name}
+                            </Typography>
+                            <Grid container spacing={1} alignItems="flex-start">
+                                {
+                                    data?.types.map((item) => (
+                                        <Grid key={item.type.name} size={{ xs: 4 }}>
+                                            <Chip
+                                                className='capitalize-text'
+                                                label={item.type.name}
+                                                sx={{
+                                                    backgroundColor: `${typeColors[item.type.name]}`,
+                                                    color: '#FFFFFF',
+                                                }}
+                                            />
+                                        </Grid>
+                                    ))
+                                }
+                            </Grid>
+                            <Divider sx={{ p: 1 }} />
+                            <Grid container spacing={1} alignItems="flex-start" sx={{ pt: 1 }}>
+                                <Grid size={{ xs: 4 }}>
+                                    <Typography className='capitalize-text' variant="body1" color="text.primary">
+                                        Weight:
+                                    </Typography>
                                 </Grid>
-                                <Divider sx={{ p: 1 }} />
-                                <Grid container spacing={1} alignItems="flex-start" sx={{ pt: 1 }}>
-                                    <Grid size={{ xs: 4 }}>
-                                        <Typography className='capitalize-text' variant="body1" color="text.primary">
-                                            Weight:
-                                        </Typography>
-                                    </Grid>
-                                    <Grid size={{ xs: 4 }}>
-                                        <Typography className='capitalize-text' variant="body1" color="text.primary">
-                                            Height:
-                                        </Typography>
-                                    </Grid>
+                                <Grid size={{ xs: 4 }}>
+                                    <Typography className='capitalize-text' variant="body1" color="text.primary">
+                                        Height:
+                                    </Typography>
                                 </Grid>
-                                <Grid container spacing={1} alignItems="flex-start">
-                                    <Grid size={{ xs: 4 }}>
-                                        <Typography className='capitalize-text' variant="body1" color="text.primary">
-                                            {`${data ? data.weight / 10 : 0} Kg`}
-                                        </Typography>
-                                    </Grid>
-                                    <Grid size={{ xs: 4 }}>
-                                        <Typography className='capitalize-text' variant="body1" color="text.primary">
-                                            {`${data ? data.height / 10 : 0} m`}
-                                        </Typography>
-                                    </Grid>
+                            </Grid>
+                            <Grid container spacing={1} alignItems="flex-start">
+                                <Grid size={{ xs: 4 }}>
+                                    <Typography className='capitalize-text' variant="body1" color="text.primary">
+                                        {`${data ? data.weight / 10 : 0} Kg`}
+                                    </Typography>
                                 </Grid>
-                            </CardContent>
-
-                        )}
+                                <Grid size={{ xs: 4 }}>
+                                    <Typography className='capitalize-text' variant="body1" color="text.primary">
+                                        {`${data ? data.height / 10 : 0} m`}
+                                    </Typography>
+                                </Grid>
+                            </Grid>
+                        </CardContent>
                     </Card>
                 </Grid>
 
@@ -191,7 +194,7 @@ const PokemonInfo = () => {
                     </Paper>
                 </Grid>
                 <Grid size={{ xs: 12 }}>
-                    <Paper elevation={3} sx={{padding: 2}}>
+                    <Paper elevation={3} sx={{ padding: 2 }}>
                         <Typography sx={{ p: 1 }} className='capitalize-text' variant="h6" color="text.primary">
                             Forms
                         </Typography>
