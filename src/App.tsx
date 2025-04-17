@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { PaletteMode } from '@mui/material';
+import { PaletteMode, CssBaseline } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import NavBar from './components/layout/NavBar';
 import Home from './pages/Home';
@@ -33,7 +33,7 @@ function App() {
           },
           text: {
             primary: '#000000',
-            secondary: '#424242',
+            secondary: '#f3efee',
           },
         }
         : {
@@ -57,7 +57,8 @@ function App() {
 
   return (
     <ThemeProvider theme={defaultTheme}>
-      <NavBar mode={mode} />
+      <CssBaseline />
+      <NavBar />
       <Routes>
         <Route path='/' element={<Home />} />
         <Route path='/pokedex/:id' element={<Pokedex />} />
