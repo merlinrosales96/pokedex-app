@@ -57,9 +57,10 @@ const Pokedex: React.FC = () => {
 
     const SearchPokemon = async () => {
         if (searchText !== "") {
+            console.log(searchText)
             const fetchData = async () => {
                 try {
-                    const response = await axios.get(`/pokemon/${searchText.toLowerCase()}`);
+                    const response = await axios.get(`/pokemon/${searchText.replace(" ","-").toLowerCase()}`);
                     return response.data;
                 } catch (error) {
                     console.error('Error fetching data:', error);
@@ -105,11 +106,8 @@ const Pokedex: React.FC = () => {
             <Container component="main" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', pb: 16, gap: 3 }}>
                 <Box component="div">
                     <Box component="div" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <Typography variant="h4" sx={{ mt: 3, pb: 8 }}>
-                            Pokédex
-                        </Typography>
 
-                        <Grid container spacing={0} sx={{ mb: 5 }}>
+                        <Grid container spacing={0} sx={{ mt: 15, mb: 5 }}>
                             <Grid size={{ xs: 11 }}>
                                 <TextField
                                     id="filled-search"
@@ -169,7 +167,7 @@ const Pokedex: React.FC = () => {
                                                 </Box>
                                                 <CardContent>
                                                     <Typography className='capitalize-text' variant="body2" color="text.primary" display="block" gutterBottom>
-                                                        {pokemon.name}
+                                                        {pokemon.name.replace("-", " ")}
                                                     </Typography>
                                                     <Chip
                                                         label={`# ${pokemonDetails[pokemon.name]?.id.toString().padStart(PokemonCount.toString().length, '0')}`}

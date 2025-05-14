@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
     Container, Grid, Box, Paper, Typography, Card, CardMedia,
     CardContent, Skeleton, Chip, Divider, Pagination, IconButton,
-    LinearProgress, CircularProgress,
+    LinearProgress, CircularProgress, Stack,
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow
 } from "@mui/material";
 import { ArrowBack } from "@mui/icons-material";
@@ -65,7 +65,7 @@ const PokemonInfo = () => {
 
     return (
         <Container maxWidth="md" component="section"
-            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', my: 4, py: 6 }}>
+            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', my: 5, py: 6 }}>
             <Grid container spacing={6} alignItems="flex-start">
                 <Grid size={{ xs: 12 }}>
                     <IconButton onClick={() => goPokedex()}>
@@ -93,49 +93,47 @@ const PokemonInfo = () => {
                         </Box>
                         <CardContent>
                             <Typography className='capitalize-text' variant="h5" color="text.primary">
-                                {data?.name}
+                                {data?.name.replace("-", " ")}
                             </Typography>
-                            <Grid container spacing={1} alignItems="flex-start">
+                            <Stack
+                                direction="row"
+                                spacing={2}
+                                sx={{
+                                    justifyContent: "flex-start",
+                                    alignItems: "flex-start",
+                                }}
+                            >
                                 {
                                     data?.types.map((item) => (
-                                        <Grid key={item.type.name} size={{ xs: 4 }}>
-                                            <Chip
-                                                className='capitalize-text'
-                                                label={item.type.name}
-                                                sx={{
-                                                    backgroundColor: `${typeColors[item.type.name]}`,
-                                                    color: '#FFFFFF',
-                                                }}
-                                            />
-                                        </Grid>
+                                        <Chip
+                                            className='capitalize-text'
+                                            label={item.type.name}
+                                            sx={{
+                                                backgroundColor: `${typeColors[item.type.name]}`,
+                                                color: '#FFFFFF',
+                                            }}
+                                        />
                                     ))
                                 }
-                            </Grid>
+                            </Stack>
                             <Divider sx={{ p: 1 }} />
-                            <Grid container spacing={1} alignItems="flex-start" sx={{ pt: 1 }}>
-                                <Grid size={{ xs: 4 }}>
-                                    <Typography className='capitalize-text' variant="body1" color="text.primary">
-                                        Weight:
-                                    </Typography>
-                                </Grid>
-                                <Grid size={{ xs: 4 }}>
-                                    <Typography className='capitalize-text' variant="body1" color="text.primary">
-                                        Height:
-                                    </Typography>
-                                </Grid>
-                            </Grid>
-                            <Grid container spacing={1} alignItems="flex-start">
-                                <Grid size={{ xs: 4 }}>
-                                    <Typography className='capitalize-text' variant="body1" color="text.primary">
-                                        {`${data ? data.weight / 10 : 0} Kg`}
-                                    </Typography>
-                                </Grid>
-                                <Grid size={{ xs: 4 }}>
-                                    <Typography className='capitalize-text' variant="body1" color="text.primary">
-                                        {`${data ? data.height / 10 : 0} m`}
-                                    </Typography>
-                                </Grid>
-                            </Grid>
+
+                            <Stack
+                                direction="row"
+                                spacing={2}
+                                sx={{
+                                    justifyContent: "flex-start",
+                                    alignItems: "flex-start",
+                                }}
+                            >
+
+                                <Typography sx={{ whiteSpace: 'pre-line' }} className='capitalize-text' variant="body1" color="text.primary">
+                                    {`Weight: \n ${data ? data.weight / 10 : 0} Kg.`}
+                                </Typography>
+                                <Typography sx={{ whiteSpace: 'pre-line' }} className='capitalize-text' variant="body1" color="text.primary">
+                                    {`Heigth: \n ${data ? data.height / 10 : 0} m`}
+                                </Typography>
+                            </Stack>
                         </CardContent>
                     </Card>
                 </Grid>
@@ -149,7 +147,7 @@ const PokemonInfo = () => {
                         <Box sx={{ padding: 2 }}>
                             {data?.stats.map((stat) => (
                                 <Box key={stat.stat.name} sx={{ mb: 2 }}>
-                                    <Typography className='capitalize-text' variant="body1">{stat.stat.name}</Typography>
+                                    <Typography className='capitalize-text' variant="body1">{stat.stat.name.replace("-", " ")}</Typography>
                                     <LinearProgress
                                         variant="determinate"
                                         value={(stat.base_stat / 255) * 100}
@@ -268,6 +266,7 @@ const PokemonInfo = () => {
                 </Grid>
             </Grid>
             <Pagination
+                size="small"
                 shape="rounded"
                 count={PokemonCount}
                 page={page}
