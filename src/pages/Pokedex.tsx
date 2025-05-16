@@ -60,7 +60,7 @@ const Pokedex: React.FC = () => {
             console.log(searchText)
             const fetchData = async () => {
                 try {
-                    const response = await axios.get(`/pokemon/${searchText.replace(" ","-").toLowerCase()}`);
+                    const response = await axios.get(`/pokemon/${searchText.replace(" ", "-").toLowerCase()}`);
                     return response.data;
                 } catch (error) {
                     console.error('Error fetching data:', error);
@@ -102,98 +102,97 @@ const Pokedex: React.FC = () => {
     };
 
     return (
-        <Box component="section" id="projects" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', px: 6 }}>
-            <Container component="main" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', pb: 16, gap: 3 }}>
-                <Box component="div">
-                    <Box component="div" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Container maxWidth="md" component="section"
+            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', my: 5, py: 6 }}>
+            <Box component="div">
+                <Box component="div" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
-                        <Grid container spacing={0} sx={{ mt: 15, mb: 5 }}>
-                            <Grid size={{ xs: 11 }}>
-                                <TextField
-                                    id="filled-search"
-                                    label="Search by name"
-                                    type="search"
-                                    variant="outlined"
-                                    color="error"
-                                    value={searchText}
-                                    onChange={handleChangeInput}
-                                    onKeyPress={handleKeyPress}
-                                    fullWidth
-                                />
-                            </Grid>
-
-                            <Grid size={{ xs: 1 }} sx={{ display: 'flex', alignItems: 'center' }}>
-                                <Tooltip title="Search Pokémon">
-                                    <IconButton color="error" onClick={SearchPokemon}>
-                                        <CatchingPokemonIcon sx={{ fontSize: '32px' }} />
-                                    </IconButton>
-                                </Tooltip>
-                            </Grid>
+                    <Grid container spacing={0} sx={{ mt: 15, mb: 5 }}>
+                        <Grid size={{ xs: 11 }}>
+                            <TextField
+                                id="filled-search"
+                                label="Search by name"
+                                type="search"
+                                variant="outlined"
+                                color="error"
+                                value={searchText}
+                                onChange={handleChangeInput}
+                                onKeyPress={handleKeyPress}
+                                fullWidth
+                            />
                         </Grid>
 
-                        <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-                            <Alert
-                                onClose={handleClose}
-                                severity={severity}
-                                variant="filled"
-                                sx={{ width: '100%' }}
-                            >
-                                {alertMessage}
-                            </Alert>
-                        </Snackbar>
-
-                        <Grid container spacing={3}>
-                            {data.map((pokemon: Pokemon) => (
-                                <Grid size={{ xs: 12, md: 6, lg: 3 }} key={pokemon.name}>
-                                    <Link to={`/pokemon/${pokemonDetails[pokemon.name]?.id}`}>
-                                        <Card sx={{ border: `2px solid ${typeColors[pokemonDetails[pokemon.name]?.types[0].type.name]}` }}>
-                                            <CardActionArea>
-                                                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                                                    <CardMedia
-                                                        className=''
-                                                        component="img"
-                                                        sx={{
-                                                            width: {
-                                                                xs: "90%",
-                                                            },
-                                                            height: {
-                                                                xs: "90%",
-                                                            },
-                                                            objectFit: "contain",
-                                                        }}
-                                                        image={pokemonDetails[pokemon.name]?.sprites.other['official-artwork'].front_default || 'default-image-url'}
-                                                        alt={pokemon.name}
-                                                    />
-                                                </Box>
-                                                <CardContent>
-                                                    <Typography className='capitalize-text' variant="body2" color="text.primary" display="block" gutterBottom>
-                                                        {pokemon.name.replace("-", " ")}
-                                                    </Typography>
-                                                    <Chip
-                                                        label={`# ${pokemonDetails[pokemon.name]?.id.toString().padStart(PokemonCount.toString().length, '0')}`}
-                                                        sx={{
-                                                            backgroundColor: `${typeColors[pokemonDetails[pokemon.name]?.types[0].type.name]}`,
-                                                            color: '#FFFFFF',
-                                                        }}
-                                                    />
-                                                </CardContent>
-                                            </CardActionArea>
-                                        </Card>
-
-                                    </Link>
-                                </Grid>
-                            ))}
+                        <Grid size={{ xs: 1 }} sx={{ display: 'flex', alignItems: 'center' }}>
+                            <Tooltip title="Search Pokémon">
+                                <IconButton color="error" onClick={SearchPokemon}>
+                                    <CatchingPokemonIcon sx={{ fontSize: '32px' }} />
+                                </IconButton>
+                            </Tooltip>
                         </Grid>
-                        <Pagination
-                            count={Math.ceil(PokemonCount / itemsPerPage)}
-                            page={page}
-                            onChange={handleChange}
-                            sx={{ marginTop: 2 }}
-                        />
-                    </Box>
+                    </Grid>
+
+                    <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+                        <Alert
+                            onClose={handleClose}
+                            severity={severity}
+                            variant="filled"
+                            sx={{ width: '100%' }}
+                        >
+                            {alertMessage}
+                        </Alert>
+                    </Snackbar>
+
+                    <Grid container spacing={3}>
+                        {data.map((pokemon: Pokemon) => (
+                            <Grid size={{ xs: 12, md: 6, lg: 3 }} key={pokemon.name}>
+                                <Link to={`/pokemon/${pokemonDetails[pokemon.name]?.id}`}>
+                                    <Card sx={{ border: `2px solid ${typeColors[pokemonDetails[pokemon.name]?.types[0].type.name]}` }}>
+                                        <CardActionArea>
+                                            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                                <CardMedia
+                                                    className=''
+                                                    component="img"
+                                                    sx={{
+                                                        width: {
+                                                            xs: "90%",
+                                                        },
+                                                        height: {
+                                                            xs: "90%",
+                                                        },
+                                                        objectFit: "contain",
+                                                    }}
+                                                    image={pokemonDetails[pokemon.name]?.sprites.other['official-artwork'].front_default || 'default-image-url'}
+                                                    alt={pokemon.name}
+                                                />
+                                            </Box>
+                                            <CardContent>
+                                                <Typography className='capitalize-text' variant="body2" color="text.primary" display="block" gutterBottom>
+                                                    {pokemon.name.replace("-", " ")}
+                                                </Typography>
+                                                <Chip
+                                                    label={`# ${pokemonDetails[pokemon.name]?.id.toString().padStart(PokemonCount.toString().length, '0')}`}
+                                                    sx={{
+                                                        backgroundColor: `${typeColors[pokemonDetails[pokemon.name]?.types[0].type.name]}`,
+                                                        color: '#FFFFFF',
+                                                    }}
+                                                />
+                                            </CardContent>
+                                        </CardActionArea>
+                                    </Card>
+
+                                </Link>
+                            </Grid>
+                        ))}
+                    </Grid>
+                    <Pagination
+                        count={Math.ceil(PokemonCount / itemsPerPage)}
+                        page={page}
+                        onChange={handleChange}
+                        sx={{ marginTop: 2 }}
+                    />
                 </Box>
-            </Container>
-        </Box>
+            </Box>
+        </Container>
     );
 };
 
