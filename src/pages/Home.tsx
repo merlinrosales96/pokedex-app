@@ -1,7 +1,7 @@
 import { Image } from "../components/common/Image";
 import logo from "../assets/images/pokeball-logo.png";
 import { Box, Typography, Button } from "@mui/material";
-import banner from '../assets/images/banner.jpg';
+import banner from '../assets/images/banner.png';
 
 const Home = () => {
     return (
