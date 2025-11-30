@@ -1,5 +1,5 @@
 import { Image } from "../components/common/Image";
-import logo from "../assets/images/404.png";
+import logo from "../assets/images/404.webp";
 import { Typography, Button } from "@mui/material";
 
 

@@ -1,7 +1,7 @@
 import { Image } from "../components/common/Image";
-import logo from "../assets/images/pokeball-logo.png";
+import logo from "../assets/images/pokeball-logo.webp";
 import { Box, Typography, Button } from "@mui/material";
-import banner from '../assets/images/banner.png';
+import banner from '../assets/images/banner.webp';
 
 const Home = () => {
     return (
