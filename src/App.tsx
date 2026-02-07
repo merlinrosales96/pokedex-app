@@ -10,43 +10,45 @@ function App() {
 
   const defaultTheme = createTheme({
     typography: {
-      fontFamily: 'PokemonGB, Arial',
+      // Usamos una fuente moderna para lectura y mantenemos la de Pokemon para títulos
+      //fontFamily: '"Poppins", "Roboto", "Arial", sans-serif',
+      fontFamily: 'PokemonGB, sans-serif',
+    },
+    shape: {
+      borderRadius: 16, // Bordes más suaves y modernos
     },
     palette: {
       mode,
       ...(mode === 'light'
         ? {
-          primary: {
-            main: '#1976d2',
-          },
-          secondary: {
-            main: '#ff4081',
-          },
+          primary: { main: '#ff1c1c' }, // Rojo Pokedex
+          secondary: { main: '#ffcb05' }, // Amarillo Pokemon
           background: {
-            default: '#f3efee',
+            default: '#f0f2f5',
             paper: '#ffffff',
-          },
-          text: {
-            primary: '#000000',
-            secondary: '#f3efee',
           },
         }
         : {
-          primary: {
-            main: '#90caf9',
-          },
-          secondary: {
-            main: '#f48fb1',
-          },
+          primary: { main: '#ff3d3d' },
+          secondary: { main: '#ffcb05' },
           background: {
-            default: '#0F141F',
-            paper: '#172030',
-          },
-          text: {
-            primary: '#ffffff',
-            secondary: '#b0bec5',
+            default: '#0a0d14',
+            paper: '#161b22',
           },
         }),
+    },
+    components: {
+      MuiCard: {
+        styleOverrides: {
+          root: {
+            transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+            '&:hover': {
+              transform: 'translateY(-5px)', // Efecto de flotación
+              boxShadow: '0px 10px 20px rgba(0,0,0,0.1)',
+            },
+          },
+        },
+      },
     },
   });
 

@@ -1,20 +1,39 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
     Grid, Card, CardContent, CardActionArea, Typography, Pagination, Tooltip,
-    Box, CardMedia, Chip, Container, IconButton, CircularProgress, TextField
+    Box, CardMedia, Chip, Container, IconButton, TextField, InputAdornment, Skeleton
 } from '@mui/material';
 import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import CatchingPokemonIcon from '@mui/icons-material/CatchingPokemon';
+import SearchIcon from '@mui/icons-material/Search';
+import { motion } from 'framer-motion';
 import { itemsPerPage, PokemonCount, typeColors } from '../utils/Utils';
 import { usePokemonList } from '../hooks/usePokemons';
 import { Pokemon, PokemonDetail } from '../utils/Types';
 import axios from '../utils/axios';
 
-const Pokedex: React.FC = () => {
+// Componente para mostrar mientras carga
+const PokedexSkeleton = () => (
+    <Grid container spacing={3}>
+        {[...Array(itemsPerPage)].map((_, index) => (
+            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={index}>
+                <Card sx={{ borderRadius: '20px', bgcolor: 'rgba(255, 255, 255, 0.05)', p: 2 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+                        <Skeleton variant="circular" width={140} height={140} sx={{ bgcolor: 'rgba(255,255,255,0.1)' }} />
+                    </Box>
+                    <CardContent sx={{ textAlign: 'center', p: 0 }}>
+                        <Skeleton variant="text" width="60%" sx={{ mx: 'auto', mb: 1, bgcolor: 'rgba(255,255,255,0.1)' }} />
+                        <Skeleton variant="rounded" width={60} height={24} sx={{ mx: 'auto', borderRadius: '12px', bgcolor: 'rgba(255,255,255,0.1)' }} />
+                    </CardContent>
+                </Card>
+            </Grid>
+        ))}
+    </Grid>
+);
 
+const Pokedex: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
 
@@ -41,14 +60,6 @@ const Pokedex: React.FC = () => {
         setSearchText(event.target.value);
     };
 
-    if (loading) {
-        return (
-            <Box sx={{ pt: 16, display: 'flex', justifyContent: 'center' }}>
-                <CircularProgress />
-            </Box>
-        );
-    }
-
     const handleKeyPress = async (event: React.KeyboardEvent) => {
         if (event.key === 'Enter') {
             await SearchPokemon();
@@ -57,14 +68,12 @@ const Pokedex: React.FC = () => {
 
     const SearchPokemon = async () => {
         if (searchText !== "") {
-            console.log(searchText)
             const fetchData = async () => {
                 try {
                     const response = await axios.get(`/pokemon/${searchText.replace(" ", "-").toLowerCase()}`);
                     return response.data;
                 } catch (error) {
                     console.error('Error fetching data:', error);
-                } finally {
                 }
             };
             const pokemonData: PokemonDetail = await fetchData();
@@ -76,121 +85,149 @@ const Pokedex: React.FC = () => {
                     setAlertMessage('Pokémon not found');
                     setOpen(true);
                 }
-            }
-            else {
+            } else {
                 setServerity('error');
                 setAlertMessage('Pokémon not found');
                 setOpen(true);
             }
-        }
-        else {
+        } else {
             setServerity('warning');
             setAlertMessage('You must type a Pokémon name');
             setOpen(true);
         }
     }
 
-    const handleClose = (
-        _?: React.SyntheticEvent | Event,
-        reason?: SnackbarCloseReason,
-    ) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-
+    const handleClose = (_?: React.SyntheticEvent | Event, reason?: SnackbarCloseReason) => {
+        if (reason === 'clickaway') return;
         setOpen(false);
     };
 
     return (
-        <Container maxWidth="md" component="section"
-            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', my: 5, py: 6 }}>
-            <Box component="div">
-                <Box component="div" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Container maxWidth="lg" sx={{ py: 12 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
-                    <Grid container spacing={0} sx={{ mt: 15, mb: 5 }}>
-                        <Grid size={{ xs: 11 }}>
-                            <TextField
-                                id="filled-search"
-                                label="Search by name"
-                                type="search"
-                                variant="outlined"
-                                color="error"
-                                value={searchText}
-                                onChange={handleChangeInput}
-                                onKeyPress={handleKeyPress}
-                                fullWidth
-                            />
-                        </Grid>
-
-                        <Grid size={{ xs: 1 }} sx={{ display: 'flex', alignItems: 'center' }}>
-                            <Tooltip title="Search Pokémon">
-                                <IconButton color="error" onClick={SearchPokemon}>
-                                    <CatchingPokemonIcon sx={{ fontSize: '32px' }} />
-                                </IconButton>
-                            </Tooltip>
-                        </Grid>
-                    </Grid>
-
-                    <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-                        <Alert
-                            onClose={handleClose}
-                            severity={severity}
-                            variant="filled"
-                            sx={{ width: '100%' }}
-                        >
-                            {alertMessage}
-                        </Alert>
-                    </Snackbar>
-
-                    <Grid container spacing={3}>
-                        {data.map((pokemon: Pokemon) => (
-                            <Grid size={{ xs: 12, md: 6, lg: 3 }} key={pokemon.name}>
-                                <Link to={`/pokemon/${pokemonDetails[pokemon.name]?.id}`}>
-                                    <Card sx={{ border: `2px solid ${typeColors[pokemonDetails[pokemon.name]?.types[0].type.name]}` }}>
-                                        <CardActionArea>
-                                            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                                                <CardMedia
-                                                    className=''
-                                                    component="img"
-                                                    sx={{
-                                                        width: {
-                                                            xs: "90%",
-                                                        },
-                                                        height: {
-                                                            xs: "90%",
-                                                        },
-                                                        objectFit: "contain",
-                                                    }}
-                                                    image={pokemonDetails[pokemon.name]?.sprites.other['official-artwork'].front_default || 'default-image-url'}
-                                                    alt={pokemon.name}
-                                                />
-                                            </Box>
-                                            <CardContent>
-                                                <Typography className='capitalize-text' variant="body2" color="text.primary" display="block" gutterBottom>
-                                                    {pokemon.name.replace("-", " ")}
-                                                </Typography>
-                                                <Chip
-                                                    label={`# ${pokemonDetails[pokemon.name]?.id.toString().padStart(PokemonCount.toString().length, '0')}`}
-                                                    sx={{
-                                                        backgroundColor: `${typeColors[pokemonDetails[pokemon.name]?.types[0].type.name]}`,
-                                                        color: '#FFFFFF',
-                                                    }}
-                                                />
-                                            </CardContent>
-                                        </CardActionArea>
-                                    </Card>
-
-                                </Link>
-                            </Grid>
-                        ))}
-                    </Grid>
-                    <Pagination
-                        count={Math.ceil(PokemonCount / itemsPerPage)}
-                        page={page}
-                        onChange={handleChange}
-                        sx={{ marginTop: 2 }}
+                {/* Search Bar remains visible during loading */}
+                <Box sx={{ width: '100%', maxWidth: 600, mb: 8 }}>
+                    <TextField
+                        fullWidth
+                        placeholder="Search by name or ID..."
+                        variant="outlined"
+                        value={searchText}
+                        onChange={handleChangeInput}
+                        onKeyPress={handleKeyPress}
+                        sx={{
+                            '& .MuiOutlinedInput-root': {
+                                borderRadius: '50px',
+                                bgcolor: 'rgba(255, 255, 255, 0.05)',
+                                backdropFilter: 'blur(10px)',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                            }
+                        }}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon color="disabled" />
+                                </InputAdornment>
+                            ),
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <Tooltip title="Search Pokémon">
+                                        <IconButton color="error" onClick={SearchPokemon}>
+                                            <CatchingPokemonIcon />
+                                        </IconButton>
+                                    </Tooltip>
+                                </InputAdornment>
+                            ),
+                        }}
                     />
                 </Box>
+
+                <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+                    <Alert onClose={handleClose} severity={severity} variant="filled" sx={{ width: '100%' }}>
+                        {alertMessage}
+                    </Alert>
+                </Snackbar>
+
+                {/* Conditional Rendering: Skeleton vs Data */}
+                {loading ? (
+                    <PokedexSkeleton />
+                ) : (
+                    <Grid container spacing={3} component={motion.div} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                        {data.map((pokemon: Pokemon, index: number) => {
+                            const detail = pokemonDetails[pokemon.name];
+                            const mainType = detail?.types[0].type.name || 'normal';
+                            const themeColor = typeColors[mainType];
+
+                            return (
+                                <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={pokemon.name}>
+                                    <motion.div
+                                        initial={{ y: 20, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
+                                        transition={{ delay: index * 0.05 }}
+                                    >
+                                        <Link to={`/pokemon/${detail?.id}`} style={{ textDecoration: 'none' }}>
+                                            <Card
+                                                sx={{
+                                                    borderRadius: '20px',
+                                                    bgcolor: 'rgba(255, 255, 255, 0.05)',
+                                                    backdropFilter: 'blur(10px)',
+                                                    border: `2px solid rgba(255,255,255,0.1)`,
+                                                    transition: 'all 0.3s ease',
+                                                    '&:hover': {
+                                                        transform: 'translateY(-8px)',
+                                                        border: `2px solid ${themeColor}`,
+                                                        boxShadow: `0 12px 30px ${themeColor}44`
+                                                    }
+                                                }}
+                                            >
+                                                <CardActionArea sx={{ p: 2 }}>
+                                                    <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+                                                        <CardMedia
+                                                            component="img"
+                                                            image={detail?.sprites.other['official-artwork'].front_default}
+                                                            alt={pokemon.name}
+                                                            sx={{
+                                                                width: '140px',
+                                                                height: '140px',
+                                                                objectFit: 'contain',
+                                                                filter: 'drop-shadow(0px 5px 15px rgba(0,0,0,0.1))'
+                                                            }}
+                                                        />
+                                                    </Box>
+                                                    <CardContent sx={{ textAlign: 'center', p: 0 }}>
+                                                        <Typography
+                                                            variant="h6"
+                                                            sx={{ textTransform: 'capitalize', fontWeight: 'bold', mb: 1, color: 'text.primary' }}
+                                                        >
+                                                            {pokemon.name.replace("-", " ")}
+                                                        </Typography>
+                                                        <Chip
+                                                            label={`#${detail?.id.toString().padStart(3, '0')}`}
+                                                            sx={{
+                                                                backgroundColor: themeColor,
+                                                                color: '#fff',
+                                                                fontWeight: 'bold',
+                                                                fontSize: '0.75rem'
+                                                            }}
+                                                        />
+                                                    </CardContent>
+                                                </CardActionArea>
+                                            </Card>
+                                        </Link>
+                                    </motion.div>
+                                </Grid>
+                            );
+                        })}
+                    </Grid>
+                )}
+
+                <Pagination
+                    count={Math.ceil(PokemonCount / itemsPerPage)}
+                    page={page}
+                    onChange={handleChange}
+                    size="large"
+                    sx={{ mt: 8, '& .MuiPaginationItem-root': { borderRadius: '10px' } }}
+                />
             </Box>
         </Container>
     );

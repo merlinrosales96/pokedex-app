@@ -2,30 +2,69 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
     Container, Grid, Box, Paper, Typography, Card, CardMedia,
-    CardContent, Skeleton, Chip, Divider, Pagination, IconButton,
-    LinearProgress, CircularProgress, Stack,
+    CardContent, Chip, Divider, Pagination, IconButton,
+    LinearProgress, Stack,
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-    Avatar, Tooltip
+    Avatar, Tooltip, Skeleton
 } from "@mui/material";
 import { ArrowBack } from "@mui/icons-material";
+import { motion } from "framer-motion";
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts';
 import { usePokemonById } from "../hooks/usePokemons";
 import { typeColors, PokemonCount } from "../utils/Utils";
-//import axios from "../utils/axios";
 
+// Componente Interno para el Skeleton de Detalles
+const InfoSkeleton = () => (
+    <Container maxWidth="lg" sx={{ py: { xs: 10, md: 15 } }}>
+        <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Skeleton variant="circular" width={40} height={40} />
+            <Skeleton variant="text" width={200} height={60} />
+            <Skeleton variant="text" width={80} height={60} sx={{ ml: 'auto' }} />
+        </Box>
+        <Grid container spacing={4}>
+            <Grid size={{ xs: 12, md: 5 }}>
+                <Card sx={{ borderRadius: '30px', bgcolor: 'rgba(255,255,255,0.05)', p: 3 }}>
+                    <Skeleton variant="rectangular" width="80%" height={250} sx={{ mx: 'auto', borderRadius: '20px', mb: 2 }} />
+                    <Stack direction="row" spacing={1} justifyContent="center" sx={{ mb: 2 }}>
+                        <Skeleton variant="rounded" width={80} height={32} />
+                        <Skeleton variant="rounded" width={80} height={32} />
+                    </Stack>
+                    <Skeleton variant="rectangular" width="100%" height={60} />
+                </Card>
+            </Grid>
+            <Grid size={{ xs: 12, md: 7 }}>
+                <Paper sx={{ p: 3, borderRadius: '30px', bgcolor: 'rgba(255,255,255,0.03)' }}>
+                    <Skeleton variant="text" width="40%" height={40} sx={{ mb: 2 }} />
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        {[...Array(6)].map((_, i) => (
+                            <Skeleton key={i} variant="text" width="100%" height={20} />
+                        ))}
+                    </Box>
+                </Paper>
+            </Grid>
+        </Grid>
+    </Container>
+);
 
 const PokemonInfo = () => {
-
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [page, setPage] = useState<number>(id ? parseInt(id) : 1);
     const { data, loading } = usePokemonById(page);
-    //const [locations, setLocations] = useState<string[]>([]);
-
     const [openTooltip, setOpenTooltip] = useState<number | null>(null);
+
+    const mainType = data?.types[0].type.name || 'normal';
+    const themeColor = typeColors[mainType];
+
+    const radarData = data?.stats.map(stat => ({
+        subject: stat.stat.name.replace("special-", "Sp. "),
+        value: stat.base_stat,
+        fullMark: 255,
+    }));
 
     const handleTouchStart = (type: number) => {
         setOpenTooltip(type);
-        setTimeout(() => setOpenTooltip(null), 2000); // Cerrar después de 2 segundos
+        setTimeout(() => setOpenTooltip(null), 2000);
     };
 
     const handleChange = (_: React.ChangeEvent<unknown>, value: number) => {
@@ -44,337 +83,175 @@ const PokemonInfo = () => {
         }
     }, [id, navigate]);
 
-    /*useEffect(() => {
-        const fetchLocations = async () => {
-          try {
-            const response = await axios.get(
-              `https://pokeapi.co/api/v2/pokemon/${id}/encounters`
-            );
-            const locationNames = response.data.map((loc: any) => loc.location_area.name);
-            setLocations(locationNames);
-          } catch (error) {
-            console.error("Error fetching locations:", error);
-            setLocations([]);
-          } finally {
-          }
-        };
-    
-        fetchLocations();
-      }, [id]);*/
-
-    if (loading) {
-        return (
-            <Box sx={{ pt: 16, display: 'flex', justifyContent: 'center' }}>
-                <CircularProgress />
-            </Box>
-        );
-    }
-
+    // Usamos el Skeleton si está cargando
+    if (loading) return <InfoSkeleton />;
 
     return (
-        <Container maxWidth="md" component="section"
-            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', my: 5, py: 6 }}>
-            <Box component="div">
-                <Box component="div" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <Grid container spacing={6} alignItems="flex-start">
-                        <Grid size={{ xs: 12 }}>
-                            <IconButton onClick={() => goPokedex()}>
-                                <ArrowBack />
-                            </IconButton>
-                        </Grid>
-                        <Grid size={{ xs: 12 }}>
-                            <Card sx={{ border: `2px solid ${typeColors[data ? data.types[0].type.name : '']}` }}>
-                                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                                    {loading ? (
-                                        <Skeleton variant="rectangular" width={140} height={140} />
-                                    ) : (
-                                        <CardMedia
-                                            className=''
-                                            component="img"
-                                            sx={{
-                                                width: "40%",
-                                                height: "40%", // Ajusta la altura según tu diseño
-                                                // Cambia a 'contain' si prefieres que la imagen no se recorte
-                                            }}
-                                            image={data?.sprites.other['official-artwork'].front_default || 'default-image-url'}
-                                            alt={data?.name}
+        <Container maxWidth="lg" sx={{ py: { xs: 10, md: 15 } }}>
+            {/* Header: Back Button and Name */}
+            <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
+                <IconButton
+                    onClick={goPokedex}
+                    sx={{ bgcolor: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)' }}
+                >
+                    <ArrowBack />
+                </IconButton>
+                <Typography variant="h3" sx={{ fontWeight: 900, textTransform: 'capitalize', letterSpacing: 2 }}>
+                    {data?.name.replace("-", " ")}
+                </Typography>
+                <Typography variant="h4" sx={{ opacity: 0.3, fontWeight: 900, ml: 'auto' }}>
+                    #{data?.id.toString().padStart(3, '0')}
+                </Typography>
+            </Box>
+
+            <Grid container spacing={4}>
+                {/* Left Column: Visuals */}
+                <Grid size={{ xs: 12, md: 5 }}>
+                    <motion.div initial={{ x: -50, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
+                        <Card sx={{
+                            borderRadius: '30px',
+                            background: `linear-gradient(135deg, ${themeColor}22 0%, rgba(255,255,255,0.05) 100%)`,
+                            backdropFilter: 'blur(20px)',
+                            border: `2px solid ${themeColor}`,
+                            textAlign: 'center',
+                            overflow: 'visible'
+                        }}>
+                            <CardMedia
+                                component="img"
+                                image={data?.sprites.other['official-artwork'].front_default}
+                                alt={data?.name}
+                                sx={{ width: '80%', mx: 'auto', mt: -5, filter: 'drop-shadow(0 20px 30px rgba(0,0,0,0.3))' }}
+                            />
+                            <CardContent>
+                                <Stack direction="row" spacing={1} justifyContent="center" sx={{ mb: 3 }}>
+                                    {data?.types.map((item) => (
+                                        <Chip
+                                            key={item.type.name}
+                                            label={item.type.name}
+                                            sx={{ backgroundColor: typeColors[item.type.name], color: '#fff', fontWeight: 'bold', textTransform: 'uppercase' }}
                                         />
-                                    )}
-                                </Box>
-                                <CardContent>
-                                    <Typography className='capitalize-text' variant="h5" color="text.primary">
-                                        {data?.name.replace("-", " ")}
-                                    </Typography>
-                                    <Stack
-                                        direction="row"
-                                        spacing={2}
-                                        divider={<Divider orientation="vertical" flexItem />}
-                                        sx={{
-                                            justifyContent: "flex-start",
-                                            alignItems: "flex-start",
-                                            mt: 1,
-                                        }}
-                                    >
-                                        {
-                                            data?.types.map((item) => (
-                                                <Chip
-                                                    className='capitalize-text'
-                                                    label={item.type.name}
-                                                    sx={{
-                                                        backgroundColor: `${typeColors[item.type.name]}`,
-                                                        color: '#FFFFFF',
-                                                    }}
-                                                />
-                                            ))
-                                        }
-                                    </Stack>
-                                    <Divider sx={{ p: 1 }} />
+                                    ))}
+                                </Stack>
+                                <Divider sx={{ my: 2, opacity: 0.1 }} />
+                                <Grid container spacing={2}>
+                                    <Grid size={{ xs: 6 }}>
+                                        <Typography variant="caption" color="text.secondary">WEIGHT</Typography>
+                                        <Typography variant="h6">{data ? data.weight / 10 : 0} kg</Typography>
+                                    </Grid>
+                                    <Grid size={{ xs: 6 }}>
+                                        <Typography variant="caption" color="text.secondary">HEIGHT</Typography>
+                                        <Typography variant="h6">{data ? data.height / 10 : 0} m</Typography>
+                                    </Grid>
+                                </Grid>
+                            </CardContent>
+                        </Card>
+                    </motion.div>
 
-                                    <Stack
-                                        direction="row"
-                                        spacing={2}
-                                        sx={{
-                                            justifyContent: "flex-start",
-                                            alignItems: "flex-start",
-                                            mt: 1
-                                        }}
-                                    >
+                    {/* Forms / Sprites panel */}
+                    <Paper sx={{ mt: 3, p: 2, borderRadius: '20px', bgcolor: 'rgba(255,255,255,0.02)' }}>
+                        <Typography variant="subtitle2" sx={{ mb: 1, opacity: 0.6 }}>VARIANTS</Typography>
+                        <Stack direction="row" spacing={2} justifyContent="center">
+                            {[
+                                { id: 1, src: data?.sprites.front_default, title: "Default" },
+                                { id: 2, src: data?.sprites.front_female, title: "Female" },
+                                { id: 3, src: data?.sprites.front_shiny, title: "Shiny" },
+                                { id: 4, src: data?.sprites.front_shiny_female, title: "Shiny Female" }
+                            ].map((sprite) => sprite.src && (
+                                <Tooltip key={sprite.id} title={sprite.title} open={openTooltip === sprite.id}>
+                                    <Avatar
+                                        src={sprite.src}
+                                        sx={{ width: 60, height: 60, bgcolor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+                                        onMouseEnter={() => setOpenTooltip(sprite.id)}
+                                        onMouseLeave={() => setOpenTooltip(null)}
+                                        onClick={() => handleTouchStart(sprite.id)}
+                                    />
+                                </Tooltip>
+                            ))}
+                        </Stack>
+                    </Paper>
+                </Grid>
 
-                                        <Typography sx={{ whiteSpace: 'pre-line' }} className='capitalize-text' variant="body1" color="text.primary">
-                                            {`Weight: \n ${data ? data.weight / 10 : 0} Kg.`}
-                                        </Typography>
-                                        <Typography sx={{ whiteSpace: 'pre-line' }} className='capitalize-text' variant="body1" color="text.primary">
-                                            {`Heigth: \n ${data ? data.height / 10 : 0} m`}
-                                        </Typography>
-                                    </Stack>
-                                </CardContent>
-                            </Card>
-                        </Grid>
+                {/* Right Column: Stats & Moves */}
+                <Grid size={{ xs: 12, md: 7 }}>
+                    <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
+                        <Paper sx={{ p: 3, borderRadius: '30px', bgcolor: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(10px)' }}>
+                            <Typography variant="h5" sx={{ mb: 3, fontWeight: 'bold' }}>Base Stats</Typography>
 
-
-                        <Grid size={{ xs: 12, md: 6 }}>
-                            <Paper elevation={3} sx={{ height: 500 }}>
-                                <Typography sx={{ p: 1 }} className='capitalize-text' variant="h6" color="text.primary">
-                                    Stats
-                                </Typography>
-                                <Box sx={{ padding: 2 }}>
+                            <Grid container spacing={2} alignItems="center">
+                                <Grid size={{ xs: 12, lg: 6 }}>
                                     {data?.stats.map((stat) => (
-                                        <Box key={stat.stat.name} sx={{ mb: 2 }}>
-                                            <Typography className='capitalize-text' variant="body1">{stat.stat.name.replace("-", " ")}</Typography>
+                                        <Box key={stat.stat.name} sx={{ mb: 1.5 }}>
+                                            <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.5 }}>
+                                                <Typography variant="body2" sx={{ textTransform: 'capitalize' }}>{stat.stat.name.replace("-", " ")}</Typography>
+                                                <Typography variant="body2" sx={{ fontWeight: 'bold' }}>{stat.base_stat}</Typography>
+                                            </Stack>
                                             <LinearProgress
                                                 variant="determinate"
                                                 value={(stat.base_stat / 255) * 100}
-                                                sx={{ height: 8, borderRadius: 5 }}
+                                                sx={{ height: 6, borderRadius: 3, bgcolor: 'rgba(255,255,255,0.1)', '& .MuiLinearProgress-bar': { bgcolor: themeColor } }}
                                             />
-                                            <Typography variant="caption">{stat.base_stat} / 255</Typography>
                                         </Box>
                                     ))}
-                                </Box>
-                            </Paper>
-                        </Grid>
-                        <Grid size={{ xs: 12, md: 6 }}>
-                            <Paper elevation={3}>
-                                <Typography sx={{ p: 1 }} className='capitalize-text' variant="h6" color="text.primary">
-                                    Moves
-                                </Typography>
-                                <TableContainer component={Paper} sx={{ maxHeight: 450, padding: 2 }}>
-                                    <Table aria-label="simple table">
-                                        <TableHead>
-                                            <TableRow>
-                                                <TableCell>#</TableCell>
-                                                <TableCell>Moves</TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {data?.moves.map((row, index) => (
-                                                <TableRow
-                                                    key={row.move.name}
-                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                                >
-                                                    <TableCell component="th" scope="row">
-                                                        {index + 1}
-                                                    </TableCell>
-                                                    <TableCell component="th" scope="row" className='capitalize-text'>
-                                                        {row.move.name.replace("-", " ")}
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
-                            </Paper>
-                        </Grid>
-                        <Grid size={{ xs: 12 }}>
-                            <Paper elevation={3} sx={{ padding: 2 }}>
-                                <Typography sx={{ p: 1 }} className='capitalize-text' variant="h6" color="text.primary">
-                                    Forms
-                                </Typography>
-                                <Stack direction="row">
-                                    {
-                                        data?.sprites.front_default != null ?
-                                            <Box>
-                                                <Tooltip
-                                                    title="Default"
-                                                    open={openTooltip === 1}
-                                                    disableFocusListener
-                                                    disableHoverListener
-                                                    disableTouchListener
-                                                    onClick={() => handleTouchStart(1)} // Mostrar al hacer clic o tocar
-                                                    onMouseEnter={() => setOpenTooltip(1)} // Mostrar al pasar el cursor
-                                                    onMouseLeave={() => setOpenTooltip(null)} // Cerrar al quitar el cursor
-                                                >
-                                                    <Avatar alt="default" src={data?.sprites.front_default} sx={{ width: 72, height: 72 }} />
-                                                </Tooltip>
-                                            </Box>
-                                            :
-                                            <></>
-                                    }
-
-                                    {
-                                        data?.sprites.front_female != null ?
-                                            <Box>
-                                                <Tooltip
-                                                    title="Female"
-                                                    open={openTooltip === 2}
-                                                    disableFocusListener
-                                                    disableHoverListener
-                                                    disableTouchListener
-                                                    onClick={() => handleTouchStart(2)} // Mostrar al hacer clic o tocar
-                                                    onMouseEnter={() => setOpenTooltip(2)} // Mostrar al pasar el cursor
-                                                    onMouseLeave={() => setOpenTooltip(null)} // Cerrar al quitar el cursor
-                                                >
-                                                    <Avatar alt="female" src={data?.sprites.front_female} sx={{ width: 72, height: 72 }} />
-                                                </Tooltip>
-                                            </Box>
-                                            :
-                                            <></>
-                                    }
-
-                                    {
-                                        data?.sprites.front_shiny != null ?
-                                            <Box>
-                                                <Tooltip
-                                                    title="Shiny"
-                                                    open={openTooltip === 3}
-                                                    disableFocusListener
-                                                    disableHoverListener
-                                                    disableTouchListener
-                                                    onClick={() => handleTouchStart(3)} // Mostrar al hacer clic o tocar
-                                                    onMouseEnter={() => setOpenTooltip(3)} // Mostrar al pasar el cursor
-                                                    onMouseLeave={() => setOpenTooltip(null)} // Cerrar al quitar el cursor
-                                                >
-                                                    <Avatar alt="shiny" src={data?.sprites.front_shiny} sx={{ width: 72, height: 72 }} />
-                                                </Tooltip>
-                                            </Box>
-                                            :
-                                            <></>
-                                    }
-
-                                    {
-                                        data?.sprites.front_shiny_female != null ?
-                                            <Box>
-                                                <Tooltip
-                                                    title="Shiny Female"
-                                                    open={openTooltip === 4}
-                                                    disableFocusListener
-                                                    disableHoverListener
-                                                    disableTouchListener
-                                                    onClick={() => handleTouchStart(4)} // Mostrar al hacer clic o tocar
-                                                    onMouseEnter={() => setOpenTooltip(4)} // Mostrar al pasar el cursor
-                                                    onMouseLeave={() => setOpenTooltip(null)} // Cerrar al quitar el cursor
-                                                >
-                                                    <Avatar alt="shiny female" src={data?.sprites.front_shiny_female} sx={{ width: 72, height: 72 }} />
-                                                </Tooltip>
-                                            </Box>
-                                            :
-                                            <></>
-                                    }
-
-
-                                </Stack>
-                                {/*
-                                <Grid container spacing={6} alignItems="center" justifyContent="center">
-
-                                    {
-                                        data?.sprites.front_default != null ?
-                                            <Grid size={{ xs: 6 }}>
-                                                <Typography sx={{ p: 1 }} className='capitalize-text' variant="caption" color="text.primary">
-                                                    Default
-                                                </Typography>
-                                                <img
-                                                    src={data?.sprites.front_default}
-                                                    alt="default"
-                                                    className="inset-0"
-                                                />
-                                            </Grid>
-                                            :
-                                            <></>
-                                    }
-
-                                    {
-                                        data?.sprites.front_female != null ?
-                                            <Grid size={{ xs: 6 }}>
-                                                <Typography sx={{ p: 1 }} className='capitalize-text' variant="caption" color="text.primary">
-                                                    Female
-                                                </Typography>
-                                                <img
-                                                    src={data?.sprites.front_female}
-                                                    alt="female"
-                                                    className="inset-0"
-                                                />
-                                            </Grid>
-                                            :
-                                            <></>
-                                    }
-
-                                    {
-                                        data?.sprites.front_shiny != null ?
-                                            <Grid size={{ xs: 6 }}>
-                                                <Typography sx={{ p: 1 }} className='capitalize-text' variant="caption" color="text.primary">
-                                                    Shiny
-                                                </Typography>
-                                                <img
-                                                    src={data?.sprites.front_shiny}
-                                                    alt="shiny"
-                                                    className="inset-0"
-                                                />
-                                            </Grid>
-                                            :
-                                            <></>
-                                    }
-
-                                    {
-                                        data?.sprites.front_shiny_female != null ?
-                                            <Grid size={{ xs: 6 }}>
-                                                <Typography sx={{ p: 1 }} className='capitalize-text' variant="caption" color="text.primary">
-                                                    Shiny Female
-                                                </Typography>
-                                                <img
-                                                    src={data?.sprites.front_shiny_female}
-                                                    alt="shiny female"
-                                                    className="inset-0"
-                                                />
-                                            </Grid>
-                                            :
-                                            <></>
-                                    }
                                 </Grid>
-                                */}
-                            </Paper>
-                        </Grid>
-                    </Grid>
-                    <Pagination
-                        size="small"
-                        shape="rounded"
-                        count={PokemonCount}
-                        page={page}
-                        onChange={handleChange}
-                        sx={{ marginTop: 2 }}
-                    />
-                </Box>
+                                <Grid size={{ xs: 12, lg: 6 }} sx={{ height: 250 }}>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
+                                            <PolarGrid stroke="rgba(255,255,255,0.2)" />
+                                            <PolarAngleAxis dataKey="subject" tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 10 }} />
+                                            <Radar
+                                                name="Stats"
+                                                dataKey="value"
+                                                stroke={themeColor}
+                                                fill={themeColor}
+                                                fillOpacity={0.5}
+                                            />
+                                        </RadarChart>
+                                    </ResponsiveContainer>
+                                </Grid>
+                            </Grid>
+                        </Paper>
+                    </motion.div>
+
+                    <Paper sx={{ mt: 3, borderRadius: '30px', overflow: 'hidden', bgcolor: 'rgba(255,255,255,0.03)' }}>
+                        <Typography variant="h6" sx={{ p: 3, pb: 0, fontWeight: 'bold' }}>Moveset</Typography>
+                        <TableContainer sx={{ maxHeight: 300 }}>
+                            <Table stickyHeader size="small">
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell sx={{ bgcolor: '#ff3d3d', color: "white" }}>#</TableCell>
+                                        <TableCell sx={{ bgcolor: '#ff3d3d', color: "white" }}>Move Name</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {data?.moves.map((row, index) => (
+                                        <TableRow key={row.move.name} hover>
+                                            <TableCell sx={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>{index + 1}</TableCell>
+                                            <TableCell sx={{ borderBottom: '1px solid rgba(255,255,255,0.05)', textTransform: 'capitalize' }}>
+                                                {row.move.name.replace("-", " ")}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </Paper>
+                </Grid>
+            </Grid>
+
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 6 }}>
+                <Pagination
+                    count={PokemonCount}
+                    page={page}
+                    onChange={handleChange}
+                    size="large"
+                    color="primary"
+                    sx={{
+                        '& .MuiPaginationItem-root': { backdropFilter: 'blur(10px)', bgcolor: 'rgba(255,255,255,0.05)' }
+                    }}
+                />
             </Box>
-        </Container >
-    )
+        </Container>
+    );
 }
 
 export default PokemonInfo;
