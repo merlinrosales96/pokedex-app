@@ -3,7 +3,7 @@ import { Image } from "../components/common/Image";
 import logo from "../assets/images/pokeball-logo.webp";
 import banner from '../assets/images/banner.webp';
 import CatchingPokemonIcon from '@mui/icons-material/CatchingPokemon';
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 
 const Home = () => {
     return (
@@ -26,7 +26,7 @@ const Home = () => {
             <Container maxWidth="sm" sx={{ textAlign: 'center', zIndex: 1 }}>
                 {/* Floating Logo Animation */}
                 <Box
-                    component={motion.div}
+                    component={m.div}
                     animate={{ y: [0, -15, 0] }}
                     transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                 >
