@@ -1,31 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
-    Grid, Card, CardContent, CardActionArea, Typography, Pagination, Tooltip,
+    Grid, Card, CardContent, CardActionArea, Typography, Pagination,
     Box, CardMedia, Chip, Container, IconButton, TextField, InputAdornment, Skeleton
 } from '@mui/material';
 import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import CatchingPokemonIcon from '@mui/icons-material/CatchingPokemon';
 import SearchIcon from '@mui/icons-material/Search';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { itemsPerPage, PokemonCount, typeColors } from '../utils/Utils';
 import { usePokemonList } from '../hooks/usePokemons';
 import { Pokemon, PokemonDetail } from '../utils/Types';
 import axios from '../utils/axios';
 
-// Componente para mostrar mientras carga
 const PokedexSkeleton = () => (
     <Grid container spacing={3}>
-        {[...Array(itemsPerPage)].map((_, index) => (
-            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={index}>
-                <Card sx={{ borderRadius: '20px', bgcolor: 'rgba(255, 255, 255, 0.05)', p: 2 }}>
+        {[...Array(itemsPerPage)].map((_) => (
+            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={`pokedex-skeleton-${_}`}>
+                <Card sx={{ borderRadius: '30px', bgcolor: '#fff', p: 2, border: '1px solid #e0e0e0', boxShadow: 'none' }}>
                     <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-                        <Skeleton variant="circular" width={140} height={140} sx={{ bgcolor: 'rgba(255,255,255,0.1)' }} />
+                        <Skeleton variant="circular" width={120} height={120} />
                     </Box>
                     <CardContent sx={{ textAlign: 'center', p: 0 }}>
-                        <Skeleton variant="text" width="60%" sx={{ mx: 'auto', mb: 1, bgcolor: 'rgba(255,255,255,0.1)' }} />
-                        <Skeleton variant="rounded" width={60} height={24} sx={{ mx: 'auto', borderRadius: '12px', bgcolor: 'rgba(255,255,255,0.1)' }} />
+                        <Skeleton variant="text" width="60%" sx={{ mx: 'auto', mb: 1 }} />
+                        <Skeleton variant="rounded" width={80} height={24} sx={{ mx: 'auto', borderRadius: '12px' }} />
                     </CardContent>
                 </Card>
             </Grid>
@@ -54,48 +53,37 @@ const Pokedex: React.FC = () => {
     const handleChange = (_: React.ChangeEvent<unknown>, value: number) => {
         setPage(value);
         navigate(`/pokedex/${value}`);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const handleChangeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchText(event.target.value);
     };
 
-    const handleKeyPress = async (event: React.KeyboardEvent) => {
-        if (event.key === 'Enter') {
-            await SearchPokemon();
-        }
-    }
+    const handleSearch = async () => {
+        if (searchText.trim() !== "") {
+            try {
+                const response = await axios.get(`/pokemon/${searchText.toLowerCase().trim()}`);
+                const pokemonData: PokemonDetail = response.data;
 
-    const SearchPokemon = async () => {
-        if (searchText !== "") {
-            const fetchData = async () => {
-                try {
-                    const response = await axios.get(`/pokemon/${searchText.replace(" ", "-").toLowerCase()}`);
-                    return response.data;
-                } catch (error) {
-                    console.error('Error fetching data:', error);
-                }
-            };
-            const pokemonData: PokemonDetail = await fetchData();
-            if (pokemonData !== undefined) {
-                if (pokemonData.id > 0 && pokemonData.id < PokemonCount + 1) {
+                if (pokemonData.id > 0 && pokemonData.id <= PokemonCount) {
                     navigate(`/pokemon/${pokemonData.id}`);
                 } else {
-                    setServerity('error');
-                    setAlertMessage('Pokémon not found');
-                    setOpen(true);
+                    showError('Pokémon out of range');
                 }
-            } else {
-                setServerity('error');
-                setAlertMessage('Pokémon not found');
-                setOpen(true);
+            } catch (error) {
+                showError('Pokémon not found');
             }
         } else {
-            setServerity('warning');
-            setAlertMessage('You must type a Pokémon name');
-            setOpen(true);
+            showError('Please type a Pokémon name');
         }
-    }
+    };
+
+    const showError = (msg: string) => {
+        setServerity('error');
+        setAlertMessage(msg);
+        setOpen(true);
+    };
 
     const handleClose = (_?: React.SyntheticEvent | Event, reason?: SnackbarCloseReason) => {
         if (reason === 'clickaway') return;
@@ -103,56 +91,55 @@ const Pokedex: React.FC = () => {
     };
 
     return (
-        <Container maxWidth="lg" sx={{ py: 12 }}>
+        <Container maxWidth="lg" sx={{ py: { xs: 4, md: 12 }, mt: { xs: 8, md: 2 } }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
-                {/* Search Bar remains visible during loading */}
+                {/* Search Bar - Aesthetic Update */}
                 <Box sx={{ width: '100%', maxWidth: 600, mb: 8 }}>
                     <TextField
                         fullWidth
-                        placeholder="Search by name or ID..."
+                        placeholder="Search Pokémon..."
                         variant="outlined"
                         value={searchText}
                         onChange={handleChangeInput}
-                        onKeyPress={handleKeyPress}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                handleSearch();
+                            }
+                        }}
                         sx={{
                             '& .MuiOutlinedInput-root': {
                                 borderRadius: '50px',
-                                bgcolor: 'rgba(255, 255, 255, 0.05)',
-                                backdropFilter: 'blur(10px)',
-                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                bgcolor: '#fff',
+                                border: '1px solid #e0e0e0',
+                                transition: 'all 0.3s ease',
+                                '&:hover': { border: '1px solid #bdbdbd' },
+                                '&.Mui-focused': { boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }
                             }
                         }}
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <SearchIcon color="disabled" />
-                                </InputAdornment>
-                            ),
-                            endAdornment: (
-                                <InputAdornment position="end">
-                                    <Tooltip title="Search Pokémon">
-                                        <IconButton color="error" onClick={SearchPokemon}>
+                        slotProps={{
+                            input: {
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <SearchIcon color="disabled" />
+                                    </InputAdornment>
+                                ),
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton color="error" onClick={handleSearch}>
                                             <CatchingPokemonIcon />
                                         </IconButton>
-                                    </Tooltip>
-                                </InputAdornment>
-                            ),
+                                    </InputAdornment>
+                                ),
+                            }
                         }}
                     />
                 </Box>
 
-                <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-                    <Alert onClose={handleClose} severity={severity} variant="filled" sx={{ width: '100%' }}>
-                        {alertMessage}
-                    </Alert>
-                </Snackbar>
-
-                {/* Conditional Rendering: Skeleton vs Data */}
                 {loading ? (
                     <PokedexSkeleton />
                 ) : (
-                    <Grid container spacing={3} component={motion.div} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                    <Grid container spacing={3}>
                         {data.map((pokemon: Pokemon, index: number) => {
                             const detail = pokemonDetails[pokemon.name];
                             const mainType = detail?.types[0].type.name || 'normal';
@@ -160,75 +147,98 @@ const Pokedex: React.FC = () => {
 
                             return (
                                 <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={pokemon.name}>
-                                    <motion.div
+                                    <m.div
                                         initial={{ y: 20, opacity: 0 }}
                                         animate={{ y: 0, opacity: 1 }}
-                                        transition={{ delay: index * 0.05 }}
+                                        transition={{ delay: index * 0.03 }}
                                     >
                                         <Link to={`/pokemon/${detail?.id}`} style={{ textDecoration: 'none' }}>
                                             <Card
                                                 sx={{
-                                                    borderRadius: '20px',
-                                                    bgcolor: 'rgba(255, 255, 255, 0.05)',
-                                                    backdropFilter: 'blur(10px)',
-                                                    border: `2px solid rgba(255,255,255,0.1)`,
+                                                    borderRadius: '30px',
+                                                    bgcolor: '#fff',
+                                                    border: '1px solid #e0e0e0',
+                                                    boxShadow: 'none',
                                                     transition: 'all 0.3s ease',
                                                     '&:hover': {
-                                                        transform: 'translateY(-8px)',
-                                                        border: `2px solid ${themeColor}`,
-                                                        boxShadow: `0 12px 30px ${themeColor}44`
+                                                        transform: 'translateY(-10px)',
+                                                        borderColor: themeColor,
+                                                        boxShadow: `0 10px 30px ${themeColor}20`
                                                     }
                                                 }}
                                             >
-                                                <CardActionArea sx={{ p: 2 }}>
+                                                <CardActionArea sx={{ p: 3 }}>
                                                     <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
                                                         <CardMedia
                                                             component="img"
                                                             image={detail?.sprites.other['official-artwork'].front_default}
                                                             alt={pokemon.name}
-                                                            sx={{
-                                                                width: '140px',
-                                                                height: '140px',
-                                                                objectFit: 'contain',
-                                                                filter: 'drop-shadow(0px 5px 15px rgba(0,0,0,0.1))'
-                                                            }}
+                                                            sx={{ width: '130px', height: '130px', objectFit: 'contain' }}
                                                         />
                                                     </Box>
                                                     <CardContent sx={{ textAlign: 'center', p: 0 }}>
-                                                        <Typography
-                                                            variant="h6"
-                                                            sx={{ textTransform: 'capitalize', fontWeight: 'bold', mb: 1, color: 'text.primary' }}
-                                                        >
+                                                        <Typography variant="body2" sx={{ opacity: 0.5, fontWeight: 800 }}>
+                                                            #{detail?.id.toString().padStart(3, '0')}
+                                                        </Typography>
+                                                        <Typography variant="h6" sx={{ textTransform: 'capitalize', fontWeight: 800, color: '#333', mb: 1 }}>
                                                             {pokemon.name.replace("-", " ")}
                                                         </Typography>
                                                         <Chip
-                                                            label={`#${detail?.id.toString().padStart(3, '0')}`}
-                                                            sx={{
-                                                                backgroundColor: themeColor,
-                                                                color: '#fff',
-                                                                fontWeight: 'bold',
-                                                                fontSize: '0.75rem'
-                                                            }}
+                                                            label={mainType.toUpperCase()}
+                                                            size="small"
+                                                            sx={{ bgcolor: themeColor, color: '#fff', fontWeight: 900, fontSize: '0.65rem' }}
                                                         />
                                                     </CardContent>
                                                 </CardActionArea>
                                             </Card>
                                         </Link>
-                                    </motion.div>
+                                    </m.div>
                                 </Grid>
                             );
                         })}
                     </Grid>
                 )}
 
-                <Pagination
-                    count={Math.ceil(PokemonCount / itemsPerPage)}
-                    page={page}
-                    onChange={handleChange}
-                    size="large"
-                    sx={{ mt: 8, '& .MuiPaginationItem-root': { borderRadius: '10px' } }}
-                />
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8, mb: 4 }}>
+                    <Pagination
+                        count={Math.ceil(PokemonCount / itemsPerPage)}
+                        page={page}
+                        onChange={handleChange}
+                        color="primary"
+                        // Controlamos cuántos números se ven en móvil para que no se rompa el diseño
+                        siblingCount={window.innerWidth < 600 ? 0 : 1}
+                        boundaryCount={1}
+                        size={window.innerWidth < 600 ? "small" : "large"}
+                        sx={{
+                            '& .MuiPaginationItem-root': {
+                                // Estilo exacto de PokemonInfo
+                                backdropFilter: 'blur(10px)',
+                                bgcolor: 'rgba(0,0,0,0.05)', // Gris muy suave y transparente
+                                fontWeight: 700,
+                                borderRadius: '10px', // Forma cuadrada redondeada moderna
+                                border: '1px solid rgba(0,0,0,0.05)',
+                                transition: 'all 0.2s ease',
+                                '&:hover': {
+                                    bgcolor: 'rgba(0,0,0,0.1)',
+                                },
+                                '&.Mui-selected': {
+                                    bgcolor: '#333', // O el themeColor si prefieres
+                                    color: '#fff',
+                                    '&:hover': {
+                                        bgcolor: '#000',
+                                    }
+                                }
+                            }
+                        }}
+                    />
+                </Box>
             </Box>
+
+            <Snackbar open={open} autoHideDuration={4000} onClose={handleClose}>
+                <Alert onClose={handleClose} severity={severity} variant="filled">
+                    {alertMessage}
+                </Alert>
+            </Snackbar>
         </Container>
     );
 };
