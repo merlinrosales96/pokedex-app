@@ -1,4 +1,4 @@
-import { useEffect, useState, lazy, Suspense } from "react";
+import { useEffect, useState, lazy, Suspense, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
     Container, Grid, Box, Paper, Typography, Card, CardMedia,
@@ -15,24 +15,54 @@ import { m, LazyMotion, domAnimation } from "framer-motion";
 import { usePokemonById } from "../hooks/usePokemons";
 import { typeColors, PokemonCount } from "../utils/Utils";
 
-// --- OPTIMIZACIÓN RECHARTS: Carga dinámica ---
-// Separamos el Radar en un componente cargado bajo demanda para reducir el bundle inicial
 const PokemonRadarChart = lazy(() => import('recharts').then(mod => ({
-    default: ({ data, themeColor }: { data: any[], themeColor: string }) => (
-        <mod.ResponsiveContainer width="100%" height="100%">
-            <mod.RadarChart cx="50%" cy="50%" outerRadius="75%" data={data}>
-                <mod.PolarGrid stroke="#e0e0e0" />
-                <mod.PolarAngleAxis dataKey="subject" tick={{ fill: 'text.secondary', fontSize: 11, fontWeight: 600 }} />
-                <mod.Radar
-                    name="Stats"
-                    dataKey="value"
-                    stroke={themeColor}
-                    fill={themeColor}
-                    fillOpacity={0.4}
-                />
-            </mod.RadarChart>
-        </mod.ResponsiveContainer>
-    )
+    // Cambiamos la función anónima por una con nombre: "ChartComponent"
+    default: function ChartComponent({ data, themeColor }: { data: any[], themeColor: string }) {
+        const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+        const wrapperRef = useRef<HTMLDivElement>(null);
+
+        useEffect(() => {
+            const measure = () => {
+                if (wrapperRef.current) {
+                    const { clientWidth, clientHeight } = wrapperRef.current;
+                    if (clientWidth > 0 && clientHeight > 0) {
+                        setDimensions({ width: clientWidth, height: clientHeight });
+                    }
+                }
+            };
+
+            measure();
+            window.addEventListener('resize', measure);
+            return () => window.removeEventListener('resize', measure);
+        }, []);
+
+        if (dimensions.width === 0) {
+            return <div ref={wrapperRef} style={{ width: '100%', height: '300px' }} />;
+        }
+
+        return (
+            <div ref={wrapperRef} style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center' }}>
+                <mod.RadarChart
+                    cx={dimensions.width / 2}
+                    cy={dimensions.height / 2}
+                    outerRadius={Math.min(dimensions.width, dimensions.height) * 0.35}
+                    width={dimensions.width}
+                    height={dimensions.height}
+                    data={data}
+                >
+                    <mod.PolarGrid stroke="#e0e0e0" />
+                    <mod.PolarAngleAxis dataKey="subject" tick={{ fill: '#666', fontSize: 11, fontWeight: 600 }} />
+                    <mod.Radar
+                        name="Stats"
+                        dataKey="value"
+                        stroke={themeColor}
+                        fill={themeColor}
+                        fillOpacity={0.4}
+                    />
+                </mod.RadarChart>
+            </div>
+        );
+    }
 })));
 
 // --- Configuración de Estilos Comunes ---
@@ -280,9 +310,19 @@ const PokemonInfo = () => {
                                         ))}
                                     </Grid>
 
-                                    <Grid size={{ xs: 12, lg: 6 }} sx={{ height: { xs: 260, md: 320 }, mt: { xs: 2, lg: 0 } }}>
-                                        {/* Implementación de Suspense para el gráfico dinámico */}
-                                        <Suspense fallback={<Skeleton variant="circular" width={200} height={200} sx={{ mx: 'auto' }} />}>
+                                    <Grid
+                                        size={{ xs: 12, lg: 6 }}
+                                        sx={{
+                                            height: { xs: 300, md: 350 }, // Altura explícita
+                                            mt: { xs: 2, lg: 0 },
+                                            position: 'relative' // Crea un contexto de renderizado estable
+                                        }}
+                                    >
+                                        <Suspense fallback={
+                                            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                                                <Skeleton variant="circular" width={220} height={220} />
+                                            </Box>
+                                        }>
                                             <PokemonRadarChart data={radarData || []} themeColor={themeColor} />
                                         </Suspense>
                                     </Grid>
